@@ -143,10 +143,9 @@ Please enable R2 through the Cloudflare Dashboard. [code: 10042]
 
 ## 次のステップ
 
-**LINE 側の準備 → セットアップツールの実行** と進みます。
+👉 **[2. LINE 側の準備へ進む](line.md)**
 
-> 🚧 **この先の手順書は準備中です（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)）。**
-> 勉強会の開催前に公開します。
+LINE 公式アカウントを用意し、セットアップツールが聞いてくる**5つの値**をそろえます（約30〜40分）。
 
 ---
 

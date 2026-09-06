@@ -10,7 +10,7 @@ LINE Harness（LINE公式アカウント向けのオープンソース CRM）を
 | 手順 | 状態 |
 |---|---|
 | [1. Cloudflare の準備](docs/setup/cloudflare.md) | ✅ 公開中 |
-| 2. LINE 側の準備 | 🚧 準備中（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)） |
+| [2. LINE 側の準備](docs/setup/line.md) | ✅ 公開中 |
 | 3. セットアップツールの実行 | 🚧 準備中（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)） |
 | 4. 仕上げの設定 | 🚧 準備中（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)） |
 

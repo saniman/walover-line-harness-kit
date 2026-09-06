@@ -78,13 +78,13 @@ npm への自動 publish（OIDC）まで整備されている。
 
 ## 3. Issue 一覧
 
-| ID | Issue | タイトル | SP | 依存 |
-|---|---|---|---|---|
-| 1 | [#1](https://github.com/saniman/walover-line-harness-kit/issues/1) | 調査: 本家最新 CLI を通し実行し、手作業が残る箇所と所要時間を実測する | 2 | — |
-| 2 | [#2](https://github.com/saniman/walover-line-harness-kit/issues/2) | docs: サポートポリシー（3ヶ月・セットアップのみ・LINEグループのみ） | 2 | — |
-| 3 | [#3](https://github.com/saniman/walover-line-harness-kit/issues/3) | docs: 参加者向けセットアップ手順書 | 3 | #1, #2 |
-| 4 | [#4](https://github.com/saniman/walover-line-harness-kit/issues/4) | 第三者（非開発者）による通し検証 | 3 | #3 |
-| **計** | | | **10** | |
+| ID | Issue | タイトル | SP | 依存 | 状態 |
+|---|---|---|---|---|---|
+| 1 | [#1](https://github.com/saniman/walover-line-harness-kit/issues/1) | 調査: 本家最新 CLI を通し実行し、手作業が残る箇所と所要時間を実測する | 2 | — | ✅ **完了** |
+| 2 | [#2](https://github.com/saniman/walover-line-harness-kit/issues/2) | docs: サポートポリシー（3ヶ月・セットアップのみ・LINEグループのみ） | 2 | — | 未着手 |
+| 3 | [#3](https://github.com/saniman/walover-line-harness-kit/issues/3) | docs: 参加者向けセットアップ手順書 | 3 | #1, #2 | 🟡 1・2・4 公開済み／3 が未作成 |
+| 4 | [#4](https://github.com/saniman/walover-line-harness-kit/issues/4) | 第三者（非開発者）による通し検証 | 3 | #3 | 未着手 |
+| **計** | | | **10** | | |
 
 SP の目安: **SP1 = 半日（2〜3時間） / SP2 = 1日 / SP3 = 2日**
 
@@ -98,23 +98,39 @@ SP の目安: **SP1 = 半日（2〜3時間） / SP2 = 1日 / SP3 = 2日**
 
 `#1` と `#2` は独立なので並行できる。
 
-### #1 の進捗（2026-09-07 時点）
+### #1 完了（2026-09-07）
 
-記録先: [`docs/findings/cli-walkthrough.md`](findings/cli-walkthrough.md)
+記録: [`docs/findings/cli-walkthrough.md`](findings/cli-walkthrough.md)
 
-- ステップ0（CLI の表面仕様確認）完了。**Step 1「R2 有効化」の直前で停止中**
-- 停止理由: R2 の有効化に**クレジットカード＋個人情報の登録**が必要。Aki の手作業待ち
+**結論: 配布可能。** 本家 CLI は無料枠のまま完走し、疎通確認まで通った。
+**所要時間は全体で1時間以内**（実測者は開発者）。
+→ 「#1 の結果が悪ければデモのみ＋次回配布に切り替える」という分岐は**不要**。当初計画どおり進める。
 
-判明した主なもの:
+主な成果:
 
 | | 内容 |
 |---|---|
-| 環境の罠 | Apple Silicon + x86_64 Node だと依存インストールが **SIGILL** で落ちる。arm64 Node で解決（57秒で成功）。**前回勉強会でも別原因と誤認して踏んでいた** |
-| `--help` が無い | `parseArgs` に分岐が無く、未知のハイフン引数は黙って無視 → **既定の `setup` が走り、Cloudflare 認証まで進む**。本家 Issue 候補（温度感: 高） |
-| TTY 必須 | `@clack/prompts` が実 TTY を要求。**パイプ経由の stdin 流し込みでは起動しない**（`uv_tty_init EINVAL`） |
-| 入力項目 | 全13項目をソースから一次情報として抽出済み。前回資料に**「LINE Login チャネルの Channel ID」が抜けていた** |
-| シークレット | `p.password` 未使用で**画面に平文表示**。`.line-harness-config.json` にも平文保存（`.gitignore` 済み） |
-| 再開機構 | `completedSteps` を永続化し `reset` / `continue` / `abort` を選ばせる実装を確認（実挙動は未検証） |
+| 重点確認① migration | 🟡 正常系のみ通過。異常系は未検証 |
+| 重点確認② 再開機構 | ✅ **実地で検証**。デプロイ失敗後の再実行で D1・R2 が作り直されず、LINE の5値も再入力不要 |
+| 重点確認③ `[assets]` | ✅ `dist/client` / `ASSETS` / `run_worker_first` を確認 |
+| 重点確認④ 各 step 実装 | ✅ サブドメイン確保・管理画面デプロイ・認証すべて機能 |
+| 手作業インベントリ | **13件**（M-1〜M-7 準備 / P-1〜P-6 仕上げ）を確定 |
+| 本家 Issue 候補 | **B-1〜B-7**（未起票） |
+| 手順書必須項目 | **C-1〜C-20** |
+
+判明した主な罠:
+
+- Apple Silicon で x86_64 Node だと依存インストールが **SIGILL** で落ちる
+- **カード登録済みでも R2 は別途有効化が必要**（code 10042）
+- cron は1インストール2本・無料枠5本 → **同一アカウントに2つまで**
+- LIFF の友だち追加オプションは既定 `On (Normal)`、要 `On (Aggressive)`
+- Callback URL 未登録だと **PC からの友だち追加が無言で失敗**
+- CLI は **実 TTY を要求**する（パイプ経由の stdin では起動しない）
+
+配布前に必須:
+
+1. 手順書「3. セットアップツールの実行」ページの作成（#3 の残り）
+2. **#4（非開発者による検証）** — 1時間以内は開発者の数字。参加者には **2〜3時間**を提示する
 
 ---
 

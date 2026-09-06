@@ -11,10 +11,10 @@ LINE Harness（LINE公式アカウント向けのオープンソース CRM）を
 |---|---|
 | [1. Cloudflare の準備](docs/setup/cloudflare.md) | ✅ 公開中 |
 | [2. LINE 側の準備](docs/setup/line.md) | ✅ 公開中 |
-| 3. セットアップツールの実行 | 🚧 準備中（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)） |
+| [3. セットアップツールの実行](docs/setup/run.md) | ✅ 公開中 |
 | [4. 仕上げの設定](docs/setup/finish.md) | ✅ 公開中 |
 
-> 全体の公開は勉強会の開催前を予定しています。
+> 上から順に進めてください。所要時間の目安は全体で **2〜3時間**です。
 
 ---
 

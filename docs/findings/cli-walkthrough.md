@@ -3,7 +3,7 @@
 > Issue: [#1](https://github.com/saniman/walover-line-harness-kit/issues/1)
 > 対象: 本家 [Shudesu/line-harness-oss](https://github.com/Shudesu/line-harness-oss) の npm パッケージ `create-line-harness`
 > 実施日: 2026-09-07 / 実施者: Aki（手作業）＋ Claude Code（記録）
-> ステータス: **進行中** — ステップ0 完了。手作業インベントリはソースから確定。**Step 1（R2 有効化）待ちで停止中**
+> ステータス: **進行中** — ステップ0 完了。手作業インベントリはソースから確定。**M-1（R2 有効化）完了**。次は M-2〜M-6（LINE 側の準備）
 > 参考資料: 前回勉強会の公開資料 https://github.com/saniman/line-harness-workshop
 
 ## 記録ルール
@@ -205,6 +205,28 @@ CLI が**自動化しない**作業。所要時間は実測待ちだが、項目
 
 > **合計 13 の手作業**（M-1〜M-7、P-1〜P-6）。うち **P-3c と P-4 は「やらないと後で不可解な壊れ方をする」類**で、
 > 手順書で最も丁寧に書くべき箇所。
+
+---
+
+## 実測: M-1（R2 有効化）完了 — 手順書経由で解決
+
+2026-09-07、Aki が公開したばかりの手順書
+[`docs/setup/cloudflare.md`](../setup/cloudflare.md)（GitHub Pages 版）に沿って作業し、**R2 の有効化に成功**。
+
+```
+$ wrangler r2 bucket list
+→ 成功（バケット 0 件の一覧が返る）
+```
+
+**この一件で、以下が実地で裏付けられた。**
+
+| | |
+|---|---|
+| 発見 B-3 の妥当性 | Aki のアカウントは**カード登録済みだった**にもかかわらず R2 は未有効だった。手順書で Step 2（支払い情報）と Step 3（R2 有効化）を分けたことが、そのまま解決手順になった |
+| 手順書形式の有効性 | 「リンクを踏む → 作業 → タブを閉じて戻る → 次のリンク」の導線で、**メニューを探させずに完了できた**。#3 全体をこの形式で作る根拠になる |
+| ディープリンク | `https://dash.cloudflare.com/?to=/:account/r2/overview` が機能。未ログイン時も `redirect_uri` で行き先を保持する |
+
+> ⏱ **所要時間は未記録。** #1 の成果物として必要なので、Aki に確認して追記する。
 
 ---
 

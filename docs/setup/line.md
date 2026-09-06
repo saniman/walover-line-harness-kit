@@ -291,8 +291,12 @@ LIFF は、LINE の中で開く画面のことです。友だち追加のとき�
 
 いよいよセットアップツールを動かします。
 
-> 🚧 **この先の手順書は準備中です（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)）。**
+> 🚧 **ツールの実行手順は準備中です（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)）。**
 > 勉強会の開催前に公開します。
+
+ツールの実行が終わったら、最後の設定に進みます。
+
+👉 **[4. 仕上げの設定へ進む](finish.md)**
 
 ---
 

@@ -10,7 +10,7 @@
 1. 配布するツールは **本家 [Shudesu/line-harness-oss](https://github.com/Shudesu/line-harness-oss) の `npx create-line-harness@latest`**。WALOVER は自前のセットアップツールを作らない。
 2. WALOVER が作るのは **手順書・サポートポリシー・検証記録の3点だけ**。SP 合計 **10**（実働 6〜8日）で、10月上旬の勉強会に間に合う。
 3. WALOVER の Fork（`saniman/line-harness-oss`）は**既存顧客専用**として維持し、配布物には一切含めない。
-4. **（2026-09-07 追加）** 本家 CLI は Claude 経由で実行できないと判明したため、**ローカル GUI ラッパー**（SP13・[#5](https://github.com/saniman/walover-line-harness-kit/issues/5)〜[#11](https://github.com/saniman/walover-line-harness-kit/issues/11)）を追加する。ただし**今回の勉強会は手順書で実施し、GUI は次回**に向けて作る。
+4. **（2026-09-07 追加）** 本家 CLI は Claude 経由で実行できないと判明したため、**ローカル GUI ラッパー**（SP13）を追加する。コードは別リポジトリ [saniman/walover-line-harness-gui](https://github.com/saniman/walover-line-harness-gui) で管理する。ただし**今回の勉強会は手順書で実施し、GUI は次回**に向けて作る。
 
 ---
 
@@ -116,7 +116,7 @@ Cloudflare Worker でツールを実行する案を検討したが、**採らな
 - 参加者向けセットアップ手順書（#3）
 - サポートポリシー（#2）
 - 第三者による通し検証（#4）
-- **（2026-09-07 追加）** 本家 CLI をラップする**ローカル GUI**（#5〜#11）。次回勉強会に向けて
+- **（2026-09-07 追加）** 本家 CLI をラップする**ローカル GUI**（別リポジトリ [walover-line-harness-gui](https://github.com/saniman/walover-line-harness-gui)）。次回勉強会に向けて
 
 ### やらないこと
 
@@ -153,36 +153,40 @@ SP の目安: **SP1 = 半日（2〜3時間） / SP2 = 1日 / SP3 = 2日**
 
 ### GUI ラッパー（2026-09-07 追加）
 
-ローカル GUI ラッパー。**実装は次回の勉強会に向けて行う**（下記「スケジュールへの影響」参照）。
+**コードとタスクは別リポジトリで管理する。**
+→ [saniman/walover-line-harness-gui](https://github.com/saniman/walover-line-harness-gui)（private）
 
-| ID | Issue | タイトル | SP | 依存 |
-|---|---|---|---|---|
-| G-1 | [#5](https://github.com/saniman/walover-line-harness-kit/issues/5) | ローカルサーバーの土台 | 2 | — |
-| G-2 | [#6](https://github.com/saniman/walover-line-harness-kit/issues/6) | フォーム UI（入力項目・検証・伏字） | 2 | #5 |
-| G-3 | [#7](https://github.com/saniman/walover-line-harness-kit/issues/7) | **PTY 起動＋プロンプト契約に基づく応答** | 3 | #5 |
-| G-4 | [#8](https://github.com/saniman/walover-line-harness-kit/issues/8) | 出力のストリーミング表示とシークレット伏字化 | 2 | #7 |
-| G-5 | [#9](https://github.com/saniman/walover-line-harness-kit/issues/9) | CLI バージョンの固定と不一致警告 | 1 | #7 |
-| G-6 | [#10](https://github.com/saniman/walover-line-harness-kit/issues/10) | **手順書の埋め込み** | 2 | #6, #3 |
-| G-7 | [#11](https://github.com/saniman/walover-line-harness-kit/issues/11) | 失敗時のステートファイル検知と警告 | 1 | #7 |
-| **計** | | | **13** | |
+このリポジトリはドキュメントのみを扱う方針（`CLAUDE.md` §1）のため、
+一度こちらに立てた #5〜#11 は移管済みとしてクローズした。
+
+| ID | Issue（GUI リポジトリ） | タイトル | SP | 依存 | 状態 |
+|---|---|---|---|---|---|
+| G-1 | [gui#1](https://github.com/saniman/walover-line-harness-gui/issues/1) | ローカルサーバーの土台 | 2 | — | ✅ **完了** |
+| G-2 | [gui#2](https://github.com/saniman/walover-line-harness-gui/issues/2) | フォーム UI（入力項目・検証・伏字） | 2 | gui#1 | 未着手 |
+| G-3 | [gui#3](https://github.com/saniman/walover-line-harness-gui/issues/3) | **PTY 起動＋プロンプト契約に基づく応答** | 3 | gui#1 | 未着手 |
+| G-4 | [gui#4](https://github.com/saniman/walover-line-harness-gui/issues/4) | 出力のストリーミング表示とシークレット伏字化 | 2 | gui#3 | 未着手 |
+| G-5 | [gui#5](https://github.com/saniman/walover-line-harness-gui/issues/5) | CLI バージョンの固定と不一致警告 | 1 | gui#3 | 未着手 |
+| G-6 | [gui#6](https://github.com/saniman/walover-line-harness-gui/issues/6) | **手順書の埋め込み** | 2 | gui#2, #3（本リポジトリ・完了） | 未着手 |
+| G-7 | [gui#7](https://github.com/saniman/walover-line-harness-gui/issues/7) | 失敗時のステートファイル検知と警告 | 1 | gui#3 | 未着手 |
+| **計** | | | **13** | | |
 
 ```
-#1（完了）
-  └─ #5 ─┬─ #6 ──┬── #10（#3 にも依存）
-         └─ #7 ──┼── #8
-                 ├── #9
-                 └── #11
+gui#1 ─┬─ gui#2 ──── gui#6（本リポジトリ #3 にも依存）
+       └─ gui#3 ─┬── gui#4
+                 ├── gui#5
+                 └── gui#7
 ```
 
 #### 全 Issue 共通の制約
 
 - **本家 CLI のロジックを再実装しない**
-- **シークレットをディスク・ログ・DB に保存しない**（メモリのみ）
+- **シークレットをディスク・ログ・DB・localStorage に保存しない**（メモリのみ）
 - **すべて参加者の PC 内で動く**。WALOVER のサーバーを経由させない
+- サーバーは `127.0.0.1` にのみ bind する
 
 #### 特に注意する Issue
 
-**#7（PTY＋プロンプト契約）が最難関かつ最も危険。**
+**gui#3（PTY＋プロンプト契約）が最難関かつ最も危険。**
 順番だけでプロンプトにマッチさせると、本家のバージョンアップでプロンプトが1つ増えただけで
 値が1つずつズレる。最悪のケースは**チャネルシークレットがプロジェクト名の欄に入る**ことで、
 その値は画面にエコーされ Worker 名として Cloudflare に残る。機能不全ではなく**情報漏洩**になる。
@@ -274,3 +278,4 @@ SP の目安: **SP1 = 半日（2〜3時間） / SP2 = 1日 / SP3 = 2日**
 - 本家 CLI（npm）: `create-line-harness`
 - WALOVER Fork（既存顧客専用・**配布対象外**）: https://github.com/saniman/line-harness-oss
 - 前回勉強会の公開資料（WALOVER 自身の成果物・MIT）: https://github.com/saniman/line-harness-workshop
+- **GUI ラッパー（コード・private）**: https://github.com/saniman/walover-line-harness-gui

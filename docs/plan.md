@@ -30,6 +30,13 @@
 | バージョン | v0.1.13（2026-04-02 で停止） | **v0.2.11** |
 | 最終コミット | — | **2026-09-06** |
 
+> **⚠️ #1 の実測で判明した補正**（[`docs/findings/cli-walkthrough.md`](findings/cli-walkthrough.md)）
+>
+> 上表の `v0.2.11` は **npm パッケージ `create-line-harness`（ランチャー）** の版であり、
+> **実際にデプロイされるアプリの版ではない**。CLI は実行時にリリースバンドル
+> **`line-oss-crm` v0.24.0** を取得してソースを固定する（`release-bundle.ts` の機構）。
+> 配布時・サポート時に控えるべきは **2つの版の両方**。
+
 Fork の CLI を調べて挙げた不具合の多くは、本家では修正済みだった:
 
 | 指摘 | 本家 v0.2.11 |
@@ -91,6 +98,24 @@ SP の目安: **SP1 = 半日（2〜3時間） / SP2 = 1日 / SP3 = 2日**
 
 `#1` と `#2` は独立なので並行できる。
 
+### #1 の進捗（2026-09-07 時点）
+
+記録先: [`docs/findings/cli-walkthrough.md`](findings/cli-walkthrough.md)
+
+- ステップ0（CLI の表面仕様確認）完了。**Step 1「R2 有効化」の直前で停止中**
+- 停止理由: R2 の有効化に**クレジットカード＋個人情報の登録**が必要。Aki の手作業待ち
+
+判明した主なもの:
+
+| | 内容 |
+|---|---|
+| 環境の罠 | Apple Silicon + x86_64 Node だと依存インストールが **SIGILL** で落ちる。arm64 Node で解決（57秒で成功）。**前回勉強会でも別原因と誤認して踏んでいた** |
+| `--help` が無い | `parseArgs` に分岐が無く、未知のハイフン引数は黙って無視 → **既定の `setup` が走り、Cloudflare 認証まで進む**。本家 Issue 候補（温度感: 高） |
+| TTY 必須 | `@clack/prompts` が実 TTY を要求。**パイプ経由の stdin 流し込みでは起動しない**（`uv_tty_init EINVAL`） |
+| 入力項目 | 全13項目をソースから一次情報として抽出済み。前回資料に**「LINE Login チャネルの Channel ID」が抜けていた** |
+| シークレット | `p.password` 未使用で**画面に平文表示**。`.line-harness-config.json` にも平文保存（`.gitignore` 済み） |
+| 再開機構 | `completedSteps` を永続化し `reset` / `continue` / `abort` を選ばせる実装を確認（実挙動は未検証） |
+
 ---
 
 ## 4. スケジュール
@@ -113,6 +138,7 @@ SP の目安: **SP1 = 半日（2〜3時間） / SP2 = 1日 / SP3 = 2日**
 ## 5. 未決の項目
 
 - [ ] **このリポジトリのライセンス表記**（手順書・ポリシーは WALOVER の著作物）。MIT / CC BY / All rights reserved のどれにするか未決。public リポジトリなので配布前に決める
+  - 判断材料: 前回勉強会の `saniman/line-harness-workshop` は **MIT（Copyright 2026 WALOVER LLC）** で公開済み。同種の資料なので揃えるのが自然
 - [ ] 勉強会の具体的な日程
 - [ ] 参加者への配布方法（このリポジトリの URL を渡すのか、LINE で配るのか）
 - [ ] サポート用 LINE グループの作成と招待導線
@@ -122,3 +148,4 @@ SP の目安: **SP1 = 半日（2〜3時間） / SP2 = 1日 / SP3 = 2日**
 - 本家: https://github.com/Shudesu/line-harness-oss
 - 本家 CLI（npm）: `create-line-harness`
 - WALOVER Fork（既存顧客専用・**配布対象外**）: https://github.com/saniman/line-harness-oss
+- 前回勉強会の公開資料（WALOVER 自身の成果物・MIT）: https://github.com/saniman/line-harness-workshop

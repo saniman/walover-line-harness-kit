@@ -3,7 +3,7 @@
 > Issue: [#1](https://github.com/saniman/walover-line-harness-kit/issues/1)
 > 対象: 本家 [Shudesu/line-harness-oss](https://github.com/Shudesu/line-harness-oss) の npm パッケージ `create-line-harness`
 > 実施日: 2026-09-07 / 実施者: Aki（手作業）＋ Claude Code（記録）
-> ステータス: **進行中** — ステップ0 完了、**Step 1（R2 有効化）の直前で停止中**
+> ステータス: **進行中** — ステップ0 完了。手作業インベントリはソースから確定。**Step 1（R2 有効化）待ちで停止中**
 > 参考資料: 前回勉強会の公開資料 https://github.com/saniman/line-harness-workshop
 
 ## 記録ルール
@@ -150,15 +150,89 @@ Error: TTY initialization failed: uv_tty_init returned EINVAL (invalid argument)
 
 このキットの方針（`CLAUDE.md` §3.1）に直結するため記録する。
 
+> **訂正**: 初版で「`.line-harness-config.json` にシークレットが平文保存される」と書いたが**誤り**。
+> 実際に保存されるのは **`.line-harness-setup.json`（進捗ステートファイル）** で、
+> しかも**成功時は削除され、失敗・中断時のみ残る**。以下が正しい。
+
 | 項目 | 実装 |
 |---|---|
 | 入力時のマスキング | **無し**。`p.password` は未使用で、チャネルシークレットもアクセストークンも `p.text` で**画面に平文表示** |
-| ディスク保存 | **あり**。`~/.line-harness/.line-harness-config.json` に `lineChannelSecret` / `lineChannelAccessToken` / `apiKey` を平文で書き出す（`setup.ts` 末尾） |
-| git 混入対策 | ✅ `.gitignore` に `.line-harness-config.json` と `.line-harness-setup.json` の両方あり |
+| `.line-harness-setup.json`（ステート） | `SetupState` を丸ごと `JSON.stringify` するため、**`lineChannelSecret` / `lineChannelAccessToken` / `apiKey` が平文で入る**。パーミッションは既定の **0644** |
+| ↑ の寿命 | **成功時**: `cleanupSuccess()` → `removeStateFile()` で**削除される**<br>**失敗・Ctrl-C 時**: `cleanupFailure()` → `saveState()` で**残る** |
+| `.line-harness-config.json`（成功時に生成） | LINE のシークレット・アクセストークン・API キーは**含まれない**。プロジェクト名・各種 URL・D1/R2 名・アカウント ID など |
+| git 混入対策 | ✅ `.gitignore` に両ファイルとも記載あり |
 | 一時 SQL ファイル | `mode: 0o600` で作成されている |
 
-→ **参加者のシークレットは、参加者自身の PC に平文で残る。** WALOVER が預かるわけではないので方針違反ではないが、
-　 手順書では「この画面とこのファイルは他人に見せない」を明示する必要がある。
+→ **危ないのは「失敗して止まった状態」**。シークレットが 0644 のファイルで残る。
+　 そしてそれは、参加者がサポートに助けを求めてファイルやスクショを送りたくなる場面と完全に一致する。
+　 **#2（サポートポリシー）に「`.line-harness-setup.json` は送らないでください」を入れる必要がある。**
+
+### API Key の一度きり問題
+
+完了画面に API Key が表示され「**この値は再表示できません。安全な場所に保存してください**」と出る。
+実際、成功時はステートファイルが消え、`.line-harness-config.json` にも含まれないため、**控え忘れると失われる**
+（Worker のシークレットとして Cloudflare 側には存在するが読み出せない）。
+→ 典型的な問い合わせになるので #2 / #3 で先回りする。
+
+---
+
+## 手作業インベントリ（#1 の中核・ソースより確定）
+
+CLI が**自動化しない**作業。所要時間は実測待ちだが、項目は確定した。
+
+### A. CLI 実行前・実行中（プロンプトに答えるための準備）
+
+| # | 手作業 | 場所 | 備考 |
+|---|---|---|---|
+| M-1 | **R2 Object Storage の有効化** | Cloudflare ダッシュボード | **最初のブロッカー**。後述のとおり「カード登録済み」でも別途必要 |
+| M-2 | LINE 公式アカウント作成 → Messaging API 有効化 → プロバイダー作成 → **Channel ID** 取得 | LINE Official Account Manager | CLI が画面に手順を表示する |
+| M-3 | **Channel Secret** 取得 | 同上（M-2 と同じページ） | |
+| M-4 | **チャネルアクセストークン（長期）発行** | LINE Developers Console | |
+| M-5 | **LINE Login チャネル**を新規作成 → **Channel ID** 取得 | LINE Developers Console | Messaging API チャネルとは**別物** |
+| M-6 | **LIFF アプリ作成** → LIFF ID 取得 | LINE Developers Console | サイズ `Full` / Scope `openid, profile, chat_message.write` / 友だち追加オプション `On (Aggressive)` / エンドポイントは一旦 `https://example.com` / **「公開済み」にする** |
+| M-7 | workers.dev サブドメイン名の決定（未設定の場合） | CLI プロンプト＋場合によりダッシュボード | **全世界で早い者勝ち**。重複したら再入力 |
+
+### B. CLI 完了後（完了画面が指示する6項目・すべて手作業）
+
+| # | 手作業 | 要点 |
+|---|---|---|
+| P-1 | **LINE 応答設定を4つ変更** | チャット `オフ` / あいさつメッセージ `オフ` / Webhook `オン` / 応答メッセージ `オフ` |
+| P-2 | **Webhook URL を設定** | `<workerUrl>/webhook` を貼り、「Webhookの利用」を ON |
+| P-3 | **LINE Login チャネルの設定3つ** | a. リンクされた LINE 公式アカウントを選択 / b. 友だち追加オプション `On (aggressive)` / c. **Callback URL 登録**（`<workerUrl>/auth/callback`）。**無いと PC から QR を踏んだとき `Invalid redirect_uri` で silent fail する** |
+| P-4 | **LIFF エンドポイント URL を更新** | `<workerUrl>?liffId=<LIFF ID>` へ変更。**`?liffId=` が必須**。M-6 で `example.com` にしておいた分の後始末 |
+| P-5 | **友だち追加 URL の周知** | QR 直リンクではなく `<workerUrl>/auth/line?ref=setup` を配る運用にする |
+| P-6 | **API Key の保管** | 完了画面でしか見られない |
+
+> **合計 13 の手作業**（M-1〜M-7、P-1〜P-6）。うち **P-3c と P-4 は「やらないと後で不可解な壊れ方をする」類**で、
+> 手順書で最も丁寧に書くべき箇所。
+
+---
+
+## 実測: 「クレカ登録済み」でも R2 は有効にならない ← #3 の重要ポイント
+
+Aki の Cloudflare アカウントは**クレジットカード登録済み**だが、R2 API は拒否された。
+
+```
+✘ [ERROR] Please enable R2 through the Cloudflare Dashboard. [code: 10042]
+```
+
+支払い情報の登録と、**R2 の利用開始（ダッシュボードでの明示的な有効化）は別の操作**である。
+
+一方 CLI の Step 1 の案内文は次のようになっている。
+
+```
+R2 Object Storage の有効化（10GB まで無料）
+https://www.cloudflare.com/ja-jp/ にアクセス → ログイン
+→ サイドメニュー「Storage & Databases」→ R2 Object Storage → Overview
+→ クレジット＆個人情報を登録
+完了したら Enter を押してください
+```
+
+**最後の行が「クレジット＆個人情報を登録」になっており、「R2 を有効化する」と書かれていない。**
+すでにカード登録済みの参加者は「自分は済んでいる」と判断して Enter を押し、
+後続の R2 バケット作成（Step 8）で初めて失敗する。
+
+→ 本家 Issue 候補 **B-3**。手順書側では **C-9** で先回りする。
 
 ---
 
@@ -186,6 +260,8 @@ https://www.cloudflare.com/ja-jp/ → ログイン
 |---|---|---|---|
 | B-1 | `--help` / `-h` が未実装で、付けても**黙って無視され本番セットアップが開始**する（Cloudflare 認証まで進む） | **高**。ヘルプ確認のつもりが本番実行に入るのは事故につながる。`parseArgs` に分岐を足すだけで直る | 起票候補（ソースで原因特定済み） |
 | B-2 | チャネルシークレット / アクセストークンが `p.text` で平文表示される | 中。`p.password` に変えるだけ。ただし「貼り付けた値を確認したい」という UX 判断の可能性もあるため、要望として出す | 起票候補 |
+| B-3 | Step 1 の案内が「クレジット＆個人情報を登録」で終わっており、**R2 の有効化そのものを指示していない**。カード登録済みの利用者は素通りし、Step 8 の R2 バケット作成で失敗する | **高**。文言修正で直る。加えて Step 1 の直後に `wrangler r2 bucket list` 相当で有効化を検証すれば、失敗を7ステップ手前に倒せる | **実測で確認済み**（本アカウントはカード登録済みだが code 10042） |
+| B-4 | 失敗・中断時に `.line-harness-setup.json` がシークレットを平文かつ 0644 で残す | 中。一時 SQL は 0600 にしているので、ステートファイルも揃えるべき | 起票候補 |
 
 ### C. 手順書（#3）に必ず書くこと
 
@@ -199,3 +275,7 @@ https://www.cloudflare.com/ja-jp/ → ログイン
 | C-6 | LINE 側で用意する値は **Messaging API チャネル**と **LINE Login チャネル**の**2種類**。混同しやすいので明確に分ける |
 | C-7 | シークレットは画面に平文表示され、`~/.line-harness/.line-harness-config.json` にも平文で保存される。**この画面とこのファイルを他人に見せない**旨を明記 |
 | C-8 | 配布時は npm 版（`create-line-harness`）とアプリ版（`line-oss-crm`）の**両方を記録**する |
+| C-9 | **「カード登録済み」と「R2 有効化済み」は別**であることを明記。R2 の画面で利用開始まで済ませてから Enter を押させる |
+| C-10 | 完了後の手作業6項目（P-1〜P-6）を**チェックリスト化**する。特に **P-3c Callback URL**（無いと PC からの友だち追加が無言で失敗）と **P-4 LIFF エンドポイントの `?liffId=`** |
+| C-11 | **API Key は完了画面でしか見られない**。控える場所を先に用意させる |
+| C-12 | 失敗して止まったときは `.line-harness-setup.json` にシークレットが残る。**このファイルは誰にも送らない**（#2 と共通） |

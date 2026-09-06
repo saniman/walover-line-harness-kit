@@ -1,0 +1,27 @@
+# GitHub Pages 設定
+# サイト: https://saniman.github.io/walover-line-harness-kit/
+
+title: WALOVER LINE Harness 配布キット
+description: 自分の Cloudflare アカウント・自分の LINE 公式アカウントで LINE Harness を立ち上げるための手順書とサポート情報
+lang: ja
+
+url: https://saniman.github.io
+baseurl: /walover-line-harness-kit
+
+theme: jekyll-theme-cayman
+show_downloads: false
+
+# .md への相対リンクを Pages 上の正しいURLへ自動変換する
+# （GitHub上では相対リンクのまま機能するので、両方で壊れない）
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: false
+
+# CLAUDE.md は Claude Code 向けの作業指示なのでサイトには出さない。
+# docs/plan.md と docs/findings/ は README が「動作検証の記録」として
+# 公開対象に挙げているため、あえて除外しない。
+exclude:
+  - CLAUDE.md

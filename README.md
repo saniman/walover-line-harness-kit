@@ -3,8 +3,18 @@
 WALOVER 勉強会の参加者が、**自分の Cloudflare アカウント・自分の LINE 公式アカウント**で
 LINE Harness（LINE公式アカウント向けのオープンソース CRM）を立ち上げるための手順書とサポート情報を置くリポジトリです。
 
-> **⚠️ セットアップ手順書は準備中です（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)）。**
-> 勉強会の開催前に公開します。
+📖 **ブラウザで読む: <https://saniman.github.io/walover-line-harness-kit/>**
+
+## 手順書
+
+| 手順 | 状態 |
+|---|---|
+| [1. Cloudflare の準備](docs/setup/cloudflare.md) | ✅ 公開中 |
+| 2. LINE 側の準備 | 🚧 準備中（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)） |
+| 3. セットアップツールの実行 | 🚧 準備中（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)） |
+| 4. 仕上げの設定 | 🚧 準備中（[#3](https://github.com/saniman/walover-line-harness-kit/issues/3)） |
+
+> 全体の公開は勉強会の開催前を予定しています。
 
 ---
 

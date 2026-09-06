@@ -1,0 +1,110 @@
+<!-- 1) コードブロックにコピーボタン（URL や設定値をそのまま貼れるように） -->
+<!-- 2) 外部リンクを別タブで開く（作業して「この手順書に戻る」導線を壊さないため） -->
+<style>
+  .main-content div.highlight { position: relative; }
+  .main-content div.highlight > pre.highlight { padding-top: 2.6rem; }
+
+  .copy-btn {
+    position: absolute; top: .5rem; right: .5rem; z-index: 2;
+    padding: .3rem .7rem;
+    font-family: inherit; font-size: .78rem; line-height: 1.4;
+    color: #24292f; background-color: #ffffff;
+    border: 1px solid #d0d7de; border-radius: .4rem;
+    cursor: pointer; opacity: .9;
+    transition: background-color .15s ease, opacity .15s ease;
+  }
+  .copy-btn:hover  { opacity: 1; background-color: #f3f6fa; }
+  .copy-btn:focus  { outline: 2px solid #157878; outline-offset: 1px; }
+  .copy-btn.copied { color: #fff; background-color: #157878; border-color: #157878; opacity: 1; }
+  .copy-btn.failed { color: #fff; background-color: #b42318; border-color: #b42318; opacity: 1; }
+
+  /* 別タブで開くリンクに印を付ける */
+  .main-content a[target="_blank"]::after {
+    content: " ↗"; font-size: .85em; opacity: .7;
+  }
+
+  @media (max-width: 42em) {
+    .copy-btn { font-size: .72rem; padding: .25rem .55rem; }
+  }
+</style>
+
+<script>
+  (function () {
+    var LABEL = 'コピー', DONE = 'コピーしました', FAIL = 'コピーできません';
+
+    function flash(btn, text, cls) {
+      btn.textContent = text;
+      btn.classList.add(cls);
+      window.setTimeout(function () {
+        btn.textContent = LABEL;
+        btn.classList.remove(cls);
+      }, 1600);
+    }
+
+    function legacyCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      return ok;
+    }
+
+    function fallback(text, btn) {
+      var ok = legacyCopy(text);
+      flash(btn, ok ? DONE : FAIL, ok ? 'copied' : 'failed');
+    }
+
+    function copy(text, btn) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(
+          function () { flash(btn, DONE, 'copied'); },
+          function () { fallback(text, btn); }
+        );
+      } else {
+        fallback(text, btn);
+      }
+    }
+
+    function addCopyButtons() {
+      var blocks = document.querySelectorAll('.main-content div.highlight');
+      Array.prototype.forEach.call(blocks, function (block) {
+        var code = block.querySelector('pre');
+        if (!code) return;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-btn';
+        btn.textContent = LABEL;
+        btn.setAttribute('aria-label', 'このコードをコピー');
+        btn.addEventListener('click', function () {
+          copy(code.innerText.replace(/\n$/, ''), btn);
+        });
+        block.insertBefore(btn, block.firstChild);
+      });
+    }
+
+    // 外部サイトへのリンクは別タブで開く。
+    // 手順書を開いたまま作業 → タブを閉じれば手順書に戻る、という導線にするため。
+    function externalLinksNewTab() {
+      var links = document.querySelectorAll('.main-content a[href^="http"]');
+      Array.prototype.forEach.call(links, function (a) {
+        if (a.hostname === window.location.hostname) return;
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
+      });
+    }
+
+    function init() { addCopyButtons(); externalLinksNewTab(); }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

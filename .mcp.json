@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "line-harness": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@line-harness/mcp-server@latest"
+      ],
+      "env": {
+        "LINE_HARNESS_API_URL": "https://line-harness-test.saniman32.workers.dev",
+        "LINE_HARNESS_API_KEY": "d064033cd266f5bf94765d628a93e1a1331c35edd618bb62f903b296812c5d8f",
+        "LINE_HARNESS_ACCOUNT_ID": "3da1df94-9a8a-4a73-a5eb-7254dcfdbc2d"
+      }
+    }
+  }
+}

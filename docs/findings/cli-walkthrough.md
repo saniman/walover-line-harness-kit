@@ -365,7 +365,7 @@ wrangler deploy failed:
 
 ```toml
 [triggers]
-crons = ["* * * * *", "0 */6 * * *"]
+crons = ["*/5 * * * *", "0 */6 * * *"]
 ```
 
 | | |

@@ -27,11 +27,15 @@ LINE Harness（LINE公式アカウント向けのオープンソース CRM）を
 
 **ツール本体は WALOVER が作ったものではありません。**
 本家 [Shudesu/line-harness-oss](https://github.com/Shudesu/line-harness-oss)（MIT）が公開している
-`create-line-harness` を、そのまま使います。
+`create-line-harness` を、そのまま呼び出します。
 
 ```bash
-npx create-line-harness@latest setup
+npx walover-line-harness-gui@0.1.0
 ```
+
+ターミナルで打つのはこの1行だけで、**入力はブラウザの画面で行います。**
+本家のツールを中継するだけのラッパーで、
+[saniman/walover-line-harness-gui](https://github.com/saniman/walover-line-harness-gui) にあります。
 
 WALOVER が提供するのは、**この1行の前後で必要になる LINE 側の設定手順**と、
 **セットアップでつまずいたときのサポート**です。

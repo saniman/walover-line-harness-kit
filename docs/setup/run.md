@@ -81,7 +81,7 @@ node -p "process.version + ' / ' + process.arch"
 ターミナルに、次の行をそのまま貼り付けて Enter を押してください。
 
 ```
-npx walover-line-harness-gui@0.5.0
+npx walover-line-harness-gui@0.6.0
 ```
 
 初回は必要なものの取得に**1〜2分**かかります。次のように表示されたら成功です。
@@ -172,7 +172,7 @@ npx walover-line-harness-gui@0.5.0
 直したあとに**同じコマンドをもう一度**実行すれば、続きから再開できます。
 
 ```
-npx walover-line-harness-gui@0.5.0
+npx walover-line-harness-gui@0.6.0
 ```
 
 `前回のリソースをどう扱いますか？` と聞かれたら、**「リセットせず、現在のアカウントで続行する」**

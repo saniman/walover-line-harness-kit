@@ -30,7 +30,7 @@ LINE Harness（LINE公式アカウント向けのオープンソース CRM）を
 `create-line-harness` を、そのまま呼び出します。
 
 ```bash
-npx walover-line-harness-gui@0.1.0
+npx walover-line-harness-gui@0.2.0
 ```
 
 ターミナルで打つのはこの1行だけで、**入力はブラウザの画面で行います。**

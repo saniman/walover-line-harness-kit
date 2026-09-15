@@ -1,0 +1,4 @@
+# MCP の接続設定。**API キーが入るのでコミットしない。**
+# 参加者にも開発者にも、手元で .mcp.json.example から作ってもらう。
+# （このリポジトリは public + GitHub Pages なので、入れると誰でも読めてしまう）
+.mcp.json
